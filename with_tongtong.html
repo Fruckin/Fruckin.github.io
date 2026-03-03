@@ -7,7 +7,7 @@
     <style>
         /* --- 全局样式 --- */
         :root {
-            --primary-color: #4221D1; /* 主色调：柔和的粉红色 */
+            --primary-color: #4221D1; /* 主色调 */
             --bg-color: #f7f9fc;      /* 背景色：极淡的灰蓝 */
             --text-color: #333;
             --card-bg: #ffffff;
@@ -52,6 +52,77 @@
             display: inline-block;
             padding: 10px 20px;
             border-radius: 50px;
+        }
+
+        /* --- 新增：女生特点区域 --- */
+        .her-traits {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .traits-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .traits-header h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .traits-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .traits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .trait-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .trait-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .trait-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .trait-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trait-card h3::before {
+            content: '✨';
+            font-size: 1.5rem;
+        }
+
+        .trait-card p {
+            color: #666;
+            margin: 0;
+            line-height: 1.7;
         }
 
         /* --- 时间轴容器 --- */
@@ -180,6 +251,15 @@
             .right {
                 left: 0%;
             }
+
+            /* 适配手机端的特点卡片 */
+            .traits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .traits-header h2 {
+                font-size: 1.8rem;
+            }
         }
         
         /* 底部 */
@@ -203,6 +283,43 @@
         <p>时间轴，待续...</p>
         <div id="timer">Loading...</div>
     </header>
+
+    <!-- 新增：女生特点区域 -->
+    <section class="her-traits">
+        <div class="traits-header">
+            <h2>彤彤的小特点 ✨</h2>
+            <p>我眼中独一无二的你</p>
+        </div>
+        <div class="traits-grid">
+            <!-- 特点卡片1 -->
+            <div class="trait-card">
+                <h3>喜欢看清晰的shi</h3>
+                <p>我也不知道为啥</p>
+            </div>
+            <!-- 特点卡片2 -->
+            <div class="trait-card">
+                <h3>耍无赖</h3>
+                <p>体会到了</p>
+            </div>
+            <!-- 特点卡片3 -->
+            <!-- <div class="trait-card">
+                <h3>胆小又勇敢</h3>
+                <p>看电影会害怕，但又愿意尝试新事物，这种反差感真的很迷人。</p>
+            </div> -->
+            <!-- 特点卡片4 -->
+            <!-- <div class="trait-card">
+                <h3>温柔细心</h3>
+                <p>待人温柔，做事细心，总能注意到别人忽略的小细节，让人感觉很温暖。</p>
+            </div> -->
+            <!-- 可以继续添加更多卡片 -->
+            <!--
+            <div class="trait-card">
+                <h3>爱笑的眼睛</h3>
+                <p>笑起来眼睛弯弯的，像有星星，每次看到都觉得整个世界都亮了。</p>
+            </div>
+            -->
+        </div>
+    </section>
 
     <div class="timeline">
         
@@ -276,20 +393,32 @@
         setInterval(updateTimer, 1000);
         updateTimer(); // 初始化运行一次
 
-        // 简单的滚动显现动画
-        window.addEventListener('scroll', checkBoxes);
-        checkBoxes(); // 初始化检查
+        // 滚动显现动画 - 包含时间轴和特点卡片
+        window.addEventListener('scroll', checkElements);
+        checkElements(); // 初始化检查
 
-        function checkBoxes() {
+        function checkElements() {
             const triggerBottom = window.innerHeight / 5 * 4;
-            const boxes = document.querySelectorAll('.container');
-
-            boxes.forEach(box => {
+            
+            // 时间轴卡片动画
+            const timelineBoxes = document.querySelectorAll('.container');
+            timelineBoxes.forEach(box => {
                 const boxTop = box.getBoundingClientRect().top;
                 if(boxTop < triggerBottom) {
                     box.classList.add('show');
                 } else {
                     box.classList.remove('show');
+                }
+            });
+
+            // 特点卡片动画
+            const traitCards = document.querySelectorAll('.trait-card');
+            traitCards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                if(cardTop < triggerBottom) {
+                    card.classList.add('show');
+                } else {
+                    card.classList.remove('show');
                 }
             });
         }

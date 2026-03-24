@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>With ZhenJun</title>
+    <style>
+        /* --- 全局样式 --- */
+        :root {
+            --primary-color: #4221D1; /* 主色调 */
+            --bg-color: #f7f9fc;      /* 背景色：极淡的灰蓝 */
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* --- 头部区域 --- */
+        header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 60px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* 计时器样式 */
+        #timer {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        /* --- 新增：女生特点区域 --- */
+        .her-traits {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .traits-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .traits-header h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .traits-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .traits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .trait-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .trait-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .trait-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .trait-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trait-card h3::before {
+            content: '✨';
+            font-size: 1.5rem;
+        }
+
+        .trait-card p {
+            color: #666;
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        /* --- 时间轴容器 --- */
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        /* 中间的竖线 */
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #ddd;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+
+        /* --- 时间轴卡片 --- */
+        .container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            box-sizing: border-box;
+            opacity: 0; /* 初始隐藏，用于动画 */
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 小圆点 */
+        .container::after {
+            content: '🌟'; /* 把爱心改成星星，降低暧昧感 */
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            right: -17px;
+            background-color: white;
+            border: 4px solid var(--primary-color);
+            top: 20px;
+            border-radius: 50%;
+            z-index: 1;
+            text-align: center;
+            line-height: 24px;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+
+        /* 左侧容器 */
+        .left {
+            left: 0;
+        }
+
+        /* 右侧容器 */
+        .right {
+            left: 50%;
+        }
+
+        /* 修正右侧小圆点位置 */
+        .right::after {
+            left: -17px;
+        }
+
+        /* 内容框样式 */
+        .content {
+            padding: 20px 30px;
+            background-color: var(--card-bg);
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .content h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .content .date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: block;
+            font-style: italic;
+        }
+
+        /* 图片样式 */
+        .content img {
+            width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- 响应式设计 (手机端) --- */
+        @media screen and (max-width: 600px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .container::after {
+                left: 15px;
+            }
+            
+            .left::after, .right::after {
+                left: 15px;
+            }
+            
+            .right {
+                left: 0%;
+            }
+
+            /* 适配手机端的特点卡片 */
+            .traits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .traits-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* 底部 */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>With ZhenJun</h1>
+        <p>记录</p> 
+        <div id="timer">Loading...</div>
+    </header>
+
+    <!-- 新增：女生特点区域 -->
+    <section class="her-traits">
+        <div class="traits-header">
+            <h2>圳君的小特点 ✨</h2>
+            <p>我的发现</p> 
+        </div>
+        <div class="traits-grid">
+            <!-- 特点卡片1 -->
+            <div class="trait-card">
+                <h3>todo</h3>
+                <p>todo</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="timeline">
+        
+        <div class="container left">
+            <div class="content">
+                <h2>初识的开始</h2> <!-- 替换暧昧表述 -->
+                <span class="date">2025年11月22日 @ online</span>
+                <p>加上微信啦～</p> <!-- 替换表述 -->
+                </div>
+        </div>
+
+        <div class="container right">
+            <div class="content">
+                <h2>第一次见面</h2>
+                <span class="date">2026年03月21日</span>
+                <p>氛围超好的三出山火锅；隔壁做题初中生的星巴克；超级浓郁的香水...汇聚成了这一天</p> 
+                <img src="photos/xingbake.jpg" alt="在星巴克">
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Made by <a href="https://zerunli.top">Zerun Li</a></p>
+    </footer>
+
+    <script>
+        // --- 配置区域 ---
+        
+        // 1. 设置初识的日期 (格式: YYYY-MM-DD)
+        const startDate = "2025-11-22"; 
+
+        // ----------------
+
+        function updateTimer() {
+            const start = new Date(startDate).getTime();
+            const now = new Date().getTime();
+            const difference = now - start;
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById("timer").innerHTML = 
+                `我们已经认识了 ${days} 天 ${hours} 小时`;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer(); // 初始化运行一次
+
+        // 滚动显现动画 - 包含时间轴和特点卡片
+        window.addEventListener('scroll', checkElements);
+        checkElements(); // 初始化检查
+
+        function checkElements() {
+            const triggerBottom = window.innerHeight / 5 * 4;
+            
+            // 时间轴卡片动画
+            const timelineBoxes = document.querySelectorAll('.container');
+            timelineBoxes.forEach(box => {
+                const boxTop = box.getBoundingClientRect().top;
+                if(boxTop < triggerBottom) {
+                    box.classList.add('show');
+                } else {
+                    box.classList.remove('show');
+                }
+            });
+
+            // 特点卡片动画
+            const traitCards = document.querySelectorAll('.trait-card');
+            traitCards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                if(cardTop < triggerBottom) {
+                    card.classList.add('show');
+                } else {
+                    card.classList.remove('show');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
